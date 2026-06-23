@@ -125,3 +125,24 @@ def perturb_C_pointwise(C, N, seed=42, amplitude=0.3):
         [C_IE * G_IE, C_II * G_II]
     ])
     return C_het
+
+def compute_variance_connectivity_recentered(C, N):
+    C_EE = C[:N, :N]
+    C_II = C[N:, N:]
+
+    def recentered_var(M):
+        N = M.shape[0]
+        recentered = np.array([np.roll(M[i], N//2 - i) for i in range(N)])
+        return np.var(recentered, axis=0)
+
+    return recentered_var(C_EE), recentered_var(C_II)
+
+def compute_variance_influence_recentered(G, N):
+    G_E = G[:N, :]
+    G_I = G[N:, :]
+
+    def recentered_var(M):
+        recentered = np.array([np.roll(M[:, j], N//2 - j) for j in range(N)])
+        return np.var(recentered, axis=0)
+
+    return recentered_var(G_E), recentered_var(G_I)
